@@ -37,7 +37,7 @@ function Collect() {
                     {!nfts && <div>be patient...</div>}
                     {nfts && nfts.map((nft, index) => (
                         <li key={index} style={{ padding: "8px 0", borderBottom: "1px solid #ddd" }}>
-                            <span><b>{nft.name}</b><br />{nft.address} <b>({nft.quantity.toString()})</b></span>
+                            <span><b>{nft.name}</b><br />{nft.address} <b>({nft.numberOwned.toString()})</b></span>
                             <br /><br />
 
                             <ul style={{ listStyleType: "none", padding: 0 }}>

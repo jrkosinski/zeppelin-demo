@@ -36,12 +36,14 @@ const Wallet = forwardRef((props, ref) => {
     }, []);
 
     //BLOCKCHAIN WRITES
-    const writeOperation = async (contractName, func) => {
+    const writeOperation = async (contractName, func, address = null) => {
         try {
             if (window.ethereum) {
                 const provider = new ethers.providers.Web3Provider(window.ethereum);
                 const signer = provider.getSigner();
-                const contract = new ethers.Contract(addresses[contractName], abi[contractName], signer);
+                if (!address) 
+                    address = addresses[contractName]
+                const contract = new ethers.Contract(address, abi[contractName], signer);
 
                 if (contract) {
                     const tx = await func(contract);
@@ -67,6 +69,28 @@ const Wallet = forwardRef((props, ref) => {
         }); 
     };
 
+    const postForSale = async (nftAddress, tokenId) => {
+        return await writeOperation("productNft", async (contract) => {
+            console.log("postForSale", nftAddress);
+
+            return await contract.setApprovalForAll(
+                addresses.productNftStore,
+                true
+            );
+        }, nftAddress);
+    };
+
+    const removeFromStore = async (nftAddress, tokenId) => {
+        return await writeOperation("productNft", async (contract) => {
+            console.log("postForSale", nftAddress);
+
+            return await contract.setApprovalForAll(
+                addresses.productNftStore,
+                false
+            );
+        }, nftAddress);
+    };
+
     const purchaseNft = async (nftAddress, tokenId) => {
         return await writeOperation("productNftStore", async (contract) => {
             const price = (await contract.getPrice(nftAddress)).toString();
@@ -85,7 +109,7 @@ const Wallet = forwardRef((props, ref) => {
             return await contract.pullPayment(
                 nftAddress, tokenId
             );
-        }); 
+        });
     };
     
     //READ-ONLY METHODS
@@ -106,7 +130,8 @@ const Wallet = forwardRef((props, ref) => {
                 const nftInfo = await Promise.all([
                     nft.balanceOf(userAddress),
                     nft.name(), 
-                    nft.royaltyBps()
+                    nft.royaltyBps(),
+                    nft.isApprovedForAll(await nft.owner(), addresses.productNftStore)
                 ]);
                 const count = nftInfo[0];
                 
@@ -114,7 +139,8 @@ const Wallet = forwardRef((props, ref) => {
                     address: nftAddr,
                     name: nftInfo[1],
                     royalty: nftInfo[2],
-                    quantity: count, 
+                    numberOwned: count, 
+                    isForSale: nftInfo[3],
                     instances: []
                 }; 
                 
@@ -239,7 +265,9 @@ const Wallet = forwardRef((props, ref) => {
         collectRoyalties, 
         getNftsOwned, 
         getNftsForSale, 
-        getAmountsOwed
+        getAmountsOwed, 
+        postForSale, 
+        removeFromStore
     }));
 
     return (

@@ -1,13 +1,44 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import Wallet from "./components/Wallet";
 
 function Mint() {
     const walletRef = useRef(null);
+    const [nfts, setNfts] = useState(null);
 
+    const getNfts = async () => {
+        const nfts = await walletRef.current.getAmountsOwed();
+        setNfts(nfts);
+    };
+
+    useEffect(() => {
+        getNfts();
+    }, []);
+    
     const mintNft = async (productName, royaltyBps, price, quantity) => {
         await walletRef.current.mintNft(productName, royaltyBps, price, quantity);
+        await getNfts();    
+    };
+
+    const postForSale = async (nftAddress) => {
+        const tx = await walletRef.current.postForSale(nftAddress);
+
+        if (tx) {
+            const rc = await tx.wait();
+            console.log('Transaction hash:', rc.transactionHash);
+            await getNfts();
+        }
+    };
+
+    const removeFromStore = async (nftAddress) => {
+        const tx = await walletRef.current.removeFromStore(nftAddress);
+
+        if (tx) {
+            const rc = await tx.wait();
+            console.log('Transaction hash:', rc.transactionHash);
+            await getNfts();
+        }
     };
 
     const [formData, setFormData] = useState({
@@ -94,6 +125,21 @@ function Mint() {
                         <button type="submit">Submit</button>
                     </div>
                 </form>
+            </div>
+            <h2>My NFTs</h2>
+
+            <div style={{ alignContent: 'left', alignSelf: 'left', textAlign: 'left', padding: 10 }}>
+                <ul style={{ listStyleType: "none", paddingLeft: 15, paddingBottom: 14, alignContent: 'left' }}>
+                    {!nfts && <div>be patient...</div>}
+                    {nfts && nfts.map((nft, index) => (
+                        <li key={index} style={{ padding: "8px 0", borderBottom: "1px solid #ddd" }}>
+                            <b>{nft.name}</b><br />{nft.address} <b>({nft.numberOwned.toString()})</b>&nbsp;&nbsp;
+                            {nft.numberOwned > 0 && !nft.isForSale && <button onClick={() => postForSale(nft.address)}>sell in store</button>}
+                            {nft.numberOwned > 0 && nft.isForSale && <button onClick={() => removeFromStore(nft.address)}>remove from store</button>}
+                            <br /><br />
+                        </li>
+                    ))}
+                </ul>
             </div>
         </div>
     );
