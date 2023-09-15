@@ -30,6 +30,7 @@ const Wallet = forwardRef((props, ref) => {
         connectWallet();
     }, []);
 
+    //BLOCKCHAIN WRITES
     const mintNft = async (productName, royaltyBps, price, quantity) => {
         if (window.ethereum) {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -37,11 +38,11 @@ const Wallet = forwardRef((props, ref) => {
             const contract = new ethers.Contract(addresses.productNftFactory, abi.productNftFactory, signer);
 
             if (contract) {
-                const result = await contract.issueMintAndPost(
+                const tx = await contract.issueMintAndPost(
                     productName, "CVR",
                     royaltyBps, price, quantity, [], []
                 );
-                return result;
+                return tx;
             }
         } else {
             throw new Error("No crypto wallet found");
@@ -56,16 +57,12 @@ const Wallet = forwardRef((props, ref) => {
             const contract = new ethers.Contract(addresses.productNftStore, abi.productNftStore, signer);
 
             const price = (await contract.getPrice(nftAddress)).toString();
-            console.log(addresses.productNft);
-            console.log(tokenId);
-            console.log(price);
             
             if (contract) {
                 const tx = await contract.purchaseNft(
                     nftAddress, tokenId, {value: price}
                 );
-                const receipt = await tx.wait();
-                console.log('Transaction hash:', receipt.transactionHash);
+                return tx;
             }
         } else {
             throw new Error("No crypto wallet found");
@@ -79,16 +76,17 @@ const Wallet = forwardRef((props, ref) => {
             const contract = new ethers.Contract(addresses.affiliatePayout, abi.affiliatePayout, signer);
 
             if (contract) {
-                const result = await contract.pullPayment(
+                const tx = await contract.pullPayment(
                     nftAddr, tokenId
                 );
-                return result;
+                return tx;
             }
         } else {
             throw new Error("No crypto wallet found");
         }
     };
     
+    //READ-ONLY METHODS
     const getNftsOwned = async () => {
         if (window.ethereum) {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -162,7 +160,6 @@ const Wallet = forwardRef((props, ref) => {
                     nft.tokenQuantity(), 
                     nft.name()
                 ]); 
-                console.log(nftInfo);
                 const nftOwner = nftInfo[0];
                 
                 const item = {

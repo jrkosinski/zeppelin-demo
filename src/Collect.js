@@ -6,24 +6,25 @@ import Wallet from "./components/Wallet";
 function Collect() {
     const walletRef = useRef(null);
     const [nfts, setNfts] = useState(null);
+    
+    const getNfts = async () => {
+        const nfts = await walletRef.current.getAmountsOwed();
+        setNfts(nfts);
+    };
 
     useEffect(() => {
-        setNfts([]);
-        const getNfts = async () => {
-            const nfts = await walletRef.current.getAmountsOwed();
-            console.log(nfts);
-            setNfts(nfts);
-        };
-
         getNfts();
     }, []);
 
     const collectRoyalties = async (nftAddress, tokenId) => {
-        const result = await walletRef.current.collectRoyalties(nftAddress, tokenId);
+        const tx = await walletRef.current.collectRoyalties(nftAddress, tokenId); 
+        
+        if (tx) {
+            const rc = await tx.wait();
+            console.log('Transaction hash:', rc.transactionHash);
+            await getNfts();
+        }
     };
-
-    const [formData, setFormData] = useState({
-    });
 
     return (
         <div className="App">

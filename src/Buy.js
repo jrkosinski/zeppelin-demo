@@ -7,25 +7,24 @@ function Buy() {
     const walletRef = useRef(null);
     const [nfts, setNfts] = useState(null);
     
+    const getNfts = async () => {
+        const nfts = await walletRef.current.getNftsForSale();
+        setNfts(nfts);
+    };
+    
     useEffect(() => {
-        setNfts([]);
-        const getNfts = async () => {
-            const nfts = await walletRef.current.getNftsForSale(); 
-            setNfts(nfts);
-        };
-
         getNfts();
     }, []);
 
     const purchaseNft = async (nftAddress, tokenId) => {
         console.log('purchase', nftAddress, tokenId);
-        const result = await walletRef.current.purchaseNft(nftAddress, tokenId);
+        const tx = await walletRef.current.purchaseNft(nftAddress, tokenId);
+        if (tx) {
+            const rc = await tx.wait();
+            console.log('Transaction hash:', rc.transactionHash);
+            await getNfts();
+        }
     };
-
-    const [formData, setFormData] = useState({
-        nftAddress: "",
-        tokenId: 1
-    });
 
     return (
         <div className="App">
