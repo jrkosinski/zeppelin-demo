@@ -96,25 +96,39 @@ const Wallet = forwardRef((props, ref) => {
             const contract = new ethers.Contract(addresses.productNftStore, abi.productNftStore, signer);
 
             const userAddress = await signer.getAddress();
-            const nftAddresses = (await contract.getNftsForSale());
+            const nftAddresses = await contract.getNftsForSale();
             const nfts = [];
 
             for (let n = 0; n < nftAddresses.length; n++) {
                 const nftAddr = nftAddresses[n];
                 const nft = new ethers.Contract(nftAddr, abi.productNft, signer);
-                const count = await nft.balanceOf(userAddress);
+                
+                const nftInfo = await Promise.all([
+                    nft.balanceOf(userAddress),
+                    nft.name(), 
+                    nft.royaltyBps()
+                ]);
+                const count = nftInfo[0];
                 
                 const item = {
                     address: nftAddr,
-                    name: await nft.name(),
-                    royalty: await nft.royaltyBps(),
+                    name: nftInfo[1],
+                    royalty: nftInfo[2],
                     quantity: count, 
                     instances: []
                 }; 
                 
+                const ownerInfoPromises = [];
                 for (let i = 0; i < count; i++) {
                     const tokenId = i + 1;
-                    if (await nft.ownerOf(tokenId) == userAddress) {
+                    ownerInfoPromises.push(nft.ownerOf(tokenId));
+                }
+                
+                const ownerInfo = await Promise.all(ownerInfoPromises);
+                
+                for (let i = 0; i < count; i++) {
+                    const tokenId = i + 1;
+                    if (ownerInfo[i] == userAddress) {
                         item.instances.push({
                             tokenId: tokenId
                         });
@@ -141,20 +155,36 @@ const Wallet = forwardRef((props, ref) => {
             for (let n = 0; n < nftAddresses.length; n++) {
                 const nftAddr = nftAddresses[n];
                 const nft = new ethers.Contract(nftAddr, abi.productNft, signer);
-                const nftOwner = await nft.owner();
+                
+                const nftInfo = await Promise.all([
+                    nft.owner(),
+                    contract.getPrice(nftAddr), 
+                    nft.tokenQuantity(), 
+                    nft.name()
+                ]); 
+                console.log(nftInfo);
+                const nftOwner = nftInfo[0];
                 
                 const item = {
                     address: nftAddr,
-                    price: await contract.getPrice(nftAddr)
+                    price: nftInfo[1]
                 }; 
-                const count = await nft.tokenQuantity(); 
+                const count = nftInfo[2]; 
                 
                 item.instances = [];
-                item.productId = await nft.name();  
+                item.productId = nftInfo[3];  
+                
+                const nftOwnersPromises = [];
+                for (let i = 0; i < count; i++) {
+                    const tokenId = i + 1;
+                    nftOwnersPromises.push(nft.ownerOf(tokenId))
+                }
+                
+                const nftOwners = await Promise.all(nftOwnersPromises);
                 
                 for (let i=0; i<count; i++) {
                     const tokenId = i+1;
-                    if (await nft.ownerOf(tokenId) == nftOwner) {
+                    if (nftOwners[i] == nftOwner) {
                         item.instances.push({
                             affiliateId: ethers.utils.keccak256(ethers.utils.toUtf8Bytes(nftAddr + tokenId.toString())).substring(0, 20),
                             tokenId: tokenId
@@ -179,10 +209,22 @@ const Wallet = forwardRef((props, ref) => {
             const signer = provider.getSigner();
             const contract = new ethers.Contract(addresses.affiliatePayout, abi.affiliatePayout, signer);
 
+            const owedPromises = [];
+            let index = 0;
+            for (let n = 0; n < nftsOwned.length; n++) {
+                for (let i = 0; i < nftsOwned[n].instances.length; i++) {
+                    const token = nftsOwned[n].instances[i];
+                    owedPromises.push(contract.amountOwed(nftsOwned[n].address, token.tokenId));
+                }
+            }
+            
+            const amountsOwed = await Promise.all(owedPromises);
+            
+            index = 0;
             for (let n=0; n<nftsOwned.length; n++) {
                 for (let i=0; i<nftsOwned[n].instances.length; i++) {
                     const token = nftsOwned[n].instances[i];
-                    token.amountOwed = await contract.amountOwed(nftsOwned[n].address, token.tokenId);
+                    token.amountOwed = await amountsOwed[index++];
                 }
             }
         } else {
