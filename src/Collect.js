@@ -9,7 +9,7 @@ function Collect() {
     
     const getNfts = async () => {
         const nfts = await walletRef.current.getAmountsOwed();
-        //console.log(nfts);
+        console.log(nfts);
         setNfts(nfts);
     };
 

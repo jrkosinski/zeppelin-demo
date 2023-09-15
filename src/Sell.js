@@ -18,8 +18,13 @@ function Sell() {
     }, []);
     
     const mintNft = async (productName, royaltyBps, price, quantity) => {
-        await walletRef.current.mintNft(productName, royaltyBps, price, quantity);
-        await getNfts();    
+        const tx = await walletRef.current.mintNft(productName, royaltyBps, price, quantity);
+
+        if (tx) {
+            const rc = await tx.wait();
+            console.log('Transaction hash:', rc.transactionHash);
+            await getNfts();
+        }
     };
 
     const postForSale = async (nftAddress) => {

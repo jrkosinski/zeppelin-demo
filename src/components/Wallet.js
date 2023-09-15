@@ -140,29 +140,30 @@ const Wallet = forwardRef((props, ref) => {
                     nft.balanceOf(userAddress),
                     nft.name(), 
                     nft.royaltyBps(),
-                    nft.isApprovedForAll(await nft.owner(), addresses.productNftStore)
+                    nft.isApprovedForAll(await nft.owner(), addresses.productNftStore), 
+                    nft.tokenQuantity()
                 ]);
-                const count = nftInfo[0];
                 
                 const item = {
                     address: nftAddr,
+                    numberOwned: nftInfo[0], 
                     name: nftInfo[1],
                     productId: nftInfo[1],
                     royalty: nftInfo[2],
-                    numberOwned: count, 
                     isForSale: nftInfo[3],
+                    totalQuantity: nftInfo[4],
                     instances: []
                 }; 
                 
                 const ownerInfoPromises = [];
-                for (let i = 0; i < count; i++) {
+                for (let i = 0; i < item.totalQuantity; i++) {
                     const tokenId = i + 1;
                     ownerInfoPromises.push(nft.ownerOf(tokenId));
                 }
                 
                 const ownerInfo = await Promise.all(ownerInfoPromises);
                 
-                for (let i = 0; i < count; i++) {
+                for (let i = 0; i < item.totalQuantity; i++) {
                     const tokenId = i + 1;
                     if (ownerInfo[i] == userAddress) {
                         item.instances.push({
