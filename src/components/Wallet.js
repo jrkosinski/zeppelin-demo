@@ -41,6 +41,8 @@ const Wallet = forwardRef((props, ref) => {
             if (window.ethereum) {
                 const provider = new ethers.providers.Web3Provider(window.ethereum);
                 const signer = provider.getSigner();
+                console.log('signer:', await signer.getAddress());
+                
                 if (!address) 
                     address = addresses[contractName]
                 const contract = new ethers.Contract(address, abi[contractName], signer);
@@ -103,6 +105,13 @@ const Wallet = forwardRef((props, ref) => {
     };
 
     const collectRoyalties = async (nftAddress, tokenId) => {
+
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const nft = new ethers.Contract(nftAddress, abi.productNft, signer);
+        console.log('owner of token:', await nft.ownerOf(tokenId));
+        console.log('owner of nft:', await nft.owner()); 
+        
         return await writeOperation("affiliatePayout", async (contract) => {
             console.log("pullPayment", nftAddress, tokenId);
 
@@ -186,18 +195,19 @@ const Wallet = forwardRef((props, ref) => {
                     nft.owner(),
                     contract.getPrice(nftAddr), 
                     nft.tokenQuantity(), 
-                    nft.name()
+                    nft.name(),
+                    nft.isApprovedForAll(await nft.owner(), addresses.productNftStore)
                 ]); 
                 const nftOwner = nftInfo[0];
                 
                 const item = {
                     address: nftAddr,
-                    price: nftInfo[1]
+                    price: nftInfo[1], 
+                    instances: [], 
+                    productId: nftInfo[3],
+                    isForSale: nftInfo[4]
                 }; 
                 const count = nftInfo[2]; 
-                
-                item.instances = [];
-                item.productId = nftInfo[3];  
                 
                 const nftOwnersPromises = [];
                 for (let i = 0; i < count; i++) {

@@ -36,19 +36,23 @@ function Collect() {
                 <ul style={{ listStyleType: "none", paddingLeft: 15, paddingBottom: 14, alignContent: 'left' }}>
                     {!nfts && <div>be patient...</div>}
                     {nfts && nfts.map((nft, index) => (
+                        <div key={index}>
+                        {nft.numberOwned > 0 && 
                         <li key={index} style={{ padding: "8px 0", borderBottom: "1px solid #ddd" }}>
                             <span><b>{nft.name}</b><br />{nft.address} <b>({nft.numberOwned.toString()})</b></span>
                             <br /><br />
 
                             <ul style={{ listStyleType: "none", padding: 0 }}>
-                                {nfts && nft.instances.map((token, index) => (
+                                {nfts && nft.numberOwned > 0 && nft.instances.map((token, index) => (
                                     <li key={index} style={{ padding: "8px 0", paddingRight: 100, borderBottom: "1px solid #ddd", display: 'flex', justifyContent: 'space-between' }}>
-                                        {token.tokenId} ({token.amountOwed.toString()})  <button onClick={() => collectRoyalties(nft.address, token.tokenId)}>collect</button>
+                                        {token.tokenId} ({token.amountOwed.toString()})  {token.amountOwed > 0 && <button onClick={() => collectRoyalties(nft.address, token.tokenId)}>collect</button>}
                                     </li>
                                 ))}
                             </ul>
                             <br/><br/>
                         </li>
+                        }
+                        </div>
                     ))}
                 </ul>
             </div>

@@ -36,7 +36,9 @@ function Buy() {
                 <ul style={{ listStyleType: "none", paddingLeft: 15, paddingBottom: 14, alignContent: 'left' }}>
                     {!nfts && <div>be patient...</div>}
                     {nfts && nfts.map((nft, index) => (
-                        <li key={index} style={{ padding: "8px 0", borderBottom: "1px solid #ddd" }}>
+                        <div key={index}>
+                        {nft.isForSale && 
+                        <li style={{ padding: "8px 0", borderBottom: "1px solid #ddd" }}>
                             <span><b>{nft.productId}</b><br/>{nft.address} - price: <b>{nft.price.toString()}</b></span>
                             <br /><br />
                             <ul>
@@ -48,6 +50,8 @@ function Buy() {
                             </ul>
                             <br /><br />
                         </li>
+                        }
+                        </div>
                     ))}
                 </ul>
             </div>
