@@ -3,7 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 import Wallet from "./components/Wallet";
 
-function Mint() {
+function Sell() {
     const walletRef = useRef(null);
     const [nfts, setNfts] = useState(null);
 
@@ -145,4 +145,4 @@ function Mint() {
     );
 }
 
-export default Mint;
+export default Sell;
