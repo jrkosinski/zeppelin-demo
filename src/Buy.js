@@ -9,6 +9,7 @@ function Buy() {
     
     const getNfts = async () => {
         const nfts = await walletRef.current.getNftsForSale();
+        //console.log(nfts);
         setNfts(nfts);
     };
     
@@ -40,11 +41,13 @@ function Buy() {
                         {nft.isForSale && 
                         <li style={{ padding: "8px 0", borderBottom: "1px solid #ddd" }}>
                             <span><b>{nft.productId}</b><br/>{nft.address} - price: <b>{nft.price.toString()}</b></span>
+                            <br/>
+                            <b>royalty {(nft.royalty / 100).toString()}%</b>
                             <br /><br />
                             <ul>
                                 {nft.instances.map((instance, index) => (
                                     <li key={index} style={{ padding: "8px 0", paddingRight:100, borderBottom: "1px solid #ddd", display: 'flex', justifyContent: 'space-between' }}>
-                                        {instance.tokenId}: {instance.affiliateId}  <button onClick={() => purchaseNft(nft.address, instance.tokenId)}>buy for {nft.price.toString()}</button>
+                                        {instance.tokenId}: {instance.affiliateId}   <button onClick={() => purchaseNft(nft.address, instance.tokenId)}>buy for {nft.price.toString()}</button>
                                     </li>
                                 ))}
                             </ul>

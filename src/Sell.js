@@ -9,6 +9,7 @@ function Sell() {
 
     const getNfts = async () => {
         const nfts = await walletRef.current.getAmountsOwed();
+        //console.log(nfts);
         setNfts(nfts);
     };
 
@@ -133,7 +134,7 @@ function Sell() {
                     {!nfts && <div>be patient...</div>}
                     {nfts && nfts.map((nft, index) => (
                         <li key={index} style={{ padding: "8px 0", borderBottom: "1px solid #ddd" }}>
-                            <b>{nft.name}</b><br />{nft.address} <b>({nft.numberOwned.toString()})</b>&nbsp;&nbsp;
+                            <b>{nft.name}</b><br />{nft.address} <b>({nft.numberOwned.toString()} owned by you)</b>&nbsp;&nbsp;
                             {nft.numberOwned > 0 && !nft.isForSale && <button onClick={() => postForSale(nft.address)}>sell in store</button>}
                             {nft.numberOwned > 0 && nft.isForSale && <button onClick={() => removeFromStore(nft.address)}>remove from store</button>}
                             <br /><br />

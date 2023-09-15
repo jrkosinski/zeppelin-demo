@@ -1,5 +1,5 @@
 module.exports = {
-    productNftFactory:  "0x3B7f7786311E58e86054D36a66eDB6eEb8D32fF1", 
-    productNftStore:    "0x0Db822057C37dC690aA7cdA709ec33B842b0F54e", 
-    affiliatePayout:    '0x3B7129f70f0D0a6779798d39E2666634149Cb9D9'
+    productNftFactory:  "0xB170FB0829Ab614a746606260134a42f8C648c23", 
+    productNftStore:    "0xcD2e720AfaC85efe84Eebb3d63616bb5Af94b4bc", 
+    affiliatePayout:    '0x20191f86e88E86f6537C7d7485fAA1398bE29036'
 }

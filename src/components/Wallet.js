@@ -147,6 +147,7 @@ const Wallet = forwardRef((props, ref) => {
                 const item = {
                     address: nftAddr,
                     name: nftInfo[1],
+                    productId: nftInfo[1],
                     royalty: nftInfo[2],
                     numberOwned: count, 
                     isForSale: nftInfo[3],
@@ -165,6 +166,7 @@ const Wallet = forwardRef((props, ref) => {
                     const tokenId = i + 1;
                     if (ownerInfo[i] == userAddress) {
                         item.instances.push({
+                            affiliateId: ethers.utils.keccak256(ethers.utils.toUtf8Bytes(nftAddr + tokenId.toString())).substring(0, 20),
                             tokenId: tokenId
                         });
                     }
@@ -196,16 +198,19 @@ const Wallet = forwardRef((props, ref) => {
                     contract.getPrice(nftAddr), 
                     nft.tokenQuantity(), 
                     nft.name(),
-                    nft.isApprovedForAll(await nft.owner(), addresses.productNftStore)
+                    nft.isApprovedForAll(await nft.owner(), addresses.productNftStore),
+                    nft.royaltyBps()
                 ]); 
                 const nftOwner = nftInfo[0];
                 
                 const item = {
                     address: nftAddr,
                     price: nftInfo[1], 
-                    instances: [], 
+                    instances: [],
+                    name: nftInfo[3],
                     productId: nftInfo[3],
-                    isForSale: nftInfo[4]
+                    isForSale: nftInfo[4],
+                    royalty: nftInfo[5]
                 }; 
                 const count = nftInfo[2]; 
                 

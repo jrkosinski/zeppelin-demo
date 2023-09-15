@@ -9,6 +9,7 @@ function Collect() {
     
     const getNfts = async () => {
         const nfts = await walletRef.current.getAmountsOwed();
+        //console.log(nfts);
         setNfts(nfts);
     };
 
@@ -39,13 +40,13 @@ function Collect() {
                         <div key={index}>
                         {nft.numberOwned > 0 && 
                         <li key={index} style={{ padding: "8px 0", borderBottom: "1px solid #ddd" }}>
-                            <span><b>{nft.name}</b><br />{nft.address} <b>({nft.numberOwned.toString()})</b></span>
+                            <span><b>{nft.name}</b><br />{nft.address} <b>({nft.numberOwned.toString()} owned by you)</b></span>
                             <br /><br />
 
                             <ul style={{ listStyleType: "none", padding: 0 }}>
                                 {nfts && nft.numberOwned > 0 && nft.instances.map((token, index) => (
                                     <li key={index} style={{ padding: "8px 0", paddingRight: 100, borderBottom: "1px solid #ddd", display: 'flex', justifyContent: 'space-between' }}>
-                                        {token.tokenId} ({token.amountOwed.toString()})  {token.amountOwed > 0 && <button onClick={() => collectRoyalties(nft.address, token.tokenId)}>collect</button>}
+                                        {token.tokenId}: {token.affiliateId} <b>({token.amountOwed.toString()} owed to you)</b>  {token.amountOwed > 0 && <button onClick={() => collectRoyalties(nft.address, token.tokenId)}>collect</button>}
                                     </li>
                                 ))}
                             </ul>
