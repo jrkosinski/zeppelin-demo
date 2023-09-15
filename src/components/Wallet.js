@@ -2,7 +2,7 @@ import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'rea
 import { ethers } from "ethers";
 import abi from "../contracts/abi";
 import addresses from "../contracts/addresses";
-import { randomBytes, randomHex } from 'web3-utils';
+import { randomHex } from 'web3-utils';
 
 const Wallet = forwardRef((props, ref) => {
     const [account, setAccount] = useState(null);
@@ -19,7 +19,7 @@ const Wallet = forwardRef((props, ref) => {
                 const provider = new ethers.providers.Web3Provider(window.ethereum);
                 const signer = provider.getSigner();
 
-                const accounts = await window.ethereum.request(
+                await window.ethereum.request(
                     { method: 'eth_requestAccounts' }
                 );
 
@@ -51,6 +51,7 @@ const Wallet = forwardRef((props, ref) => {
                     const signer = provider.getSigner();
                     const message = randomHex(1);
                     const signature = await signer.signMessage(message);
+                    console.log(signature);
                     setConnected(true);
                 }
                 catch (e) {
@@ -195,7 +196,7 @@ const Wallet = forwardRef((props, ref) => {
                 
                 for (let i = 0; i < item.totalQuantity; i++) {
                     const tokenId = i + 1;
-                    if (ownerInfo[i] == userAddress) {
+                    if (ownerInfo[i] === userAddress) {
                         item.instances.push({
                             affiliateId: ethers.utils.keccak256(ethers.utils.toUtf8Bytes(nftAddr + tokenId.toString())).substring(0, 20),
                             tokenId: tokenId
@@ -258,7 +259,7 @@ const Wallet = forwardRef((props, ref) => {
                 
                 for (let i=0; i<count; i++) {
                     const tokenId = i+1;
-                    if (nftOwners[i] == nftOwner && nftOwners[i] != userAddress) {
+                    if (nftOwners[i] === nftOwner && nftOwners[i] !== userAddress) {
                         item.instances.push({
                             affiliateId: ethers.utils.keccak256(ethers.utils.toUtf8Bytes(nftAddr + tokenId.toString())).substring(0, 20),
                             tokenId: tokenId
