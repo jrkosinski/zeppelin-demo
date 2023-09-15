@@ -12,7 +12,7 @@ function App() {
             <div className="App">
                 <header>
                     <nav>
-                        Home<br />
+                        <Link to="/">home</Link><br />
                         <Link to="/mint">mint</Link><br />
                         <Link to="/buy">buy</Link><br />
                         <Link to="/collect">collect</Link><br />

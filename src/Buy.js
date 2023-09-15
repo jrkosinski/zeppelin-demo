@@ -30,26 +30,30 @@ function Buy() {
     return (
         <div className="App">
             <Wallet ref={walletRef} />
-            <img src={logo} className="App-logo" alt="logo" />
+            <img src={logo} className="App-logo" alt="logo" style={{ height: '100px' }} />
             <p>
-                Buy a Product NFT
+                <h2>Buy a Product NFT</h2>
             </p>
             
-            <ul style={{ listStyleType: "none", padding: 0 }}>
-                {!nfts && <div>be patient...</div>}
-                {nfts && nfts.map((nft, index) => (
-                    <li key={index} style={{ padding: "8px 0", borderBottom: "1px solid #ddd" }}>
-                        <span>{nft.productId} - buy for {nft.price.toString()}</span>
-                        <ul>
-                            {nft.instances.map((instance, index) => (
-                                <li key={index} style={{ padding: "8px 0", borderBottom: "1px solid #ddd" }}>
-                                    {instance.tokenId} {instance.affiliateId}  <button onClick={() => purchaseNft(nft.address, instance.tokenId)}>buy</button>
-                                </li>
-                            ))}
-                        </ul>
-                    </li>
-                ))}
-            </ul>
+            <div style={{alignContent:'left', alignSelf:'left', textAlign:'left', padding:10}}>
+                <ul style={{ listStyleType: "none", paddingLeft: 15, paddingBottom: 14, alignContent: 'left' }}>
+                    {!nfts && <div>be patient...</div>}
+                    {nfts && nfts.map((nft, index) => (
+                        <li key={index} style={{ padding: "8px 0", borderBottom: "1px solid #ddd" }}>
+                            <span><b>{nft.productId}</b><br/>{nft.address} - price: <b>{nft.price.toString()}</b></span>
+                            <br /><br />
+                            <ul>
+                                {nft.instances.map((instance, index) => (
+                                    <li key={index} style={{ padding: "8px 0", paddingRight:100, borderBottom: "1px solid #ddd", display: 'flex', justifyContent: 'space-between' }}>
+                                        {instance.tokenId}: {instance.affiliateId}  <button onClick={() => purchaseNft(nft.address, instance.tokenId)}>buy for {nft.price.toString()}</button>
+                                    </li>
+                                ))}
+                            </ul>
+                            <br /><br />
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </div>
     );
 }
