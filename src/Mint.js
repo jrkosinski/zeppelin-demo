@@ -40,9 +40,8 @@ function Mint() {
         <div className="App">
             <Wallet ref={walletRef} />
             <img src={logo} className="App-logo" alt="logo" style={{ height: '100px' }} />
-            <p>
-                <h2>Mint a Product NFT</h2>
-            </p>
+            <h2>Mint a Product NFT</h2>
+                
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: 20 }}>
                 <form onSubmit={handleSubmit}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignContent: 'left', alignSelf: 'left', textAlign: 'left', }}>

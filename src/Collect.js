@@ -30,9 +30,7 @@ function Collect() {
         <div className="App">
             <Wallet ref={walletRef} />
             <img src={logo} className="App-logo" alt="logo" style={{ height: '100px' }} />
-            <p>
-                <h2>NFTs Owned</h2>
-            </p>
+            <h2>NFTs Owned</h2>
 
             <div style={{ alignContent: 'left', alignSelf: 'left', textAlign: 'left', padding: 10 }}>
                 <ul style={{ listStyleType: "none", paddingLeft: 15, paddingBottom: 14, alignContent: 'left' }}>

@@ -8,22 +8,27 @@ const Wallet = forwardRef((props, ref) => {
 
     useEffect(() => {
         const connectWallet = async () => {
-            if (window.ethereum) {
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                const signer = provider.getSigner();
+            try {
+                if (window.ethereum) {
+                    const provider = new ethers.providers.Web3Provider(window.ethereum);
+                    const signer = provider.getSigner();
 
-                await window.ethereum.request({
-                    method: "wallet_switchEthereumChain",
-                    params: [
-                        {
-                            chainId: "0x61",
-                        },
-                    ],
-                });
+                    await window.ethereum.request({
+                        method: "wallet_switchEthereumChain",
+                        params: [
+                            {
+                                chainId: "0x61",
+                            },
+                        ],
+                    });
 
-                setAccount(await signer.getAddress());
-            } else {
-                alert("Please install MetaMask.");
+                    setAccount(await signer.getAddress());
+                } else {
+                    alert("Please install MetaMask.");
+                }
+            }
+            catch(e) {
+                console.error(e);
             }
         };
 
@@ -31,59 +36,56 @@ const Wallet = forwardRef((props, ref) => {
     }, []);
 
     //BLOCKCHAIN WRITES
-    const mintNft = async (productName, royaltyBps, price, quantity) => {
-        if (window.ethereum) {
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const signer = provider.getSigner();
-            const contract = new ethers.Contract(addresses.productNftFactory, abi.productNftFactory, signer);
+    const writeOperation = async (contractName, func) => {
+        try {
+            if (window.ethereum) {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const signer = provider.getSigner();
+                const contract = new ethers.Contract(addresses[contractName], abi[contractName], signer);
 
-            if (contract) {
-                const tx = await contract.issueMintAndPost(
-                    productName, "CVR",
-                    royaltyBps, price, quantity, [], []
-                );
-                return tx;
+                if (contract) {
+                    const tx = await func(contract);
+                    console.log(tx);
+                    return tx;
+                }
+            } else {
+                throw new Error("No crypto wallet found");
             }
-        } else {
-            throw new Error("No crypto wallet found");
         }
+        catch (e) {
+            console.error(e);
+        }
+    }; 
+    
+    const mintNft = async (productName, royaltyBps, price, quantity) => {
+        return await writeOperation("productNftFactory", async (contract) => {
+            console.log("issueMintAndPost", productName, royaltyBps, price, quantity); 
+            return await contract.issueMintAndPost(
+                productName, "CVR",
+                royaltyBps, price, quantity, [], []
+            );
+        }); 
     };
 
     const purchaseNft = async (nftAddress, tokenId) => {
-        
-        if (window.ethereum) {
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const signer = provider.getSigner(); 
-            const contract = new ethers.Contract(addresses.productNftStore, abi.productNftStore, signer);
-
+        return await writeOperation("productNftStore", async (contract) => {
             const price = (await contract.getPrice(nftAddress)).toString();
-            
-            if (contract) {
-                const tx = await contract.purchaseNft(
-                    nftAddress, tokenId, {value: price}
-                );
-                return tx;
-            }
-        } else {
-            throw new Error("No crypto wallet found");
-        }
+            console.log("purchaseNft", nftAddress, tokenId, price);
+
+            return await contract.purchaseNft(
+                nftAddress, tokenId, { value: price }
+            );
+        }); 
     };
 
-    const collectRoyalties = async (nftAddr, tokenId) => {
-        if (window.ethereum) {
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const signer = provider.getSigner();
-            const contract = new ethers.Contract(addresses.affiliatePayout, abi.affiliatePayout, signer);
+    const collectRoyalties = async (nftAddress, tokenId) => {
+        return await writeOperation("affiliatePayout", async (contract) => {
+            console.log("pullPayment", nftAddress, tokenId);
 
-            if (contract) {
-                const tx = await contract.pullPayment(
-                    nftAddr, tokenId
-                );
-                return tx;
-            }
-        } else {
-            throw new Error("No crypto wallet found");
-        }
+            return await contract.pullPayment(
+                nftAddress, tokenId
+            );
+        }); 
     };
     
     //READ-ONLY METHODS
