@@ -2,43 +2,71 @@ import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'rea
 import { ethers } from "ethers";
 import abi from "../contracts/abi";
 import addresses from "../contracts/addresses";
+import { randomBytes, randomHex } from 'web3-utils';
 
 const Wallet = forwardRef((props, ref) => {
     const [account, setAccount] = useState(null);
+    const [connected, setConnected] = useState(false);
 
     useEffect(() => {
-        const connectWallet = async () => {
-            try {
-                if (window.ethereum) {
-                    const provider = new ethers.providers.Web3Provider(window.ethereum);
-                    const signer = provider.getSigner();
-
-                    await window.ethereum.request({
-                        method: "wallet_switchEthereumChain",
-                        params: [
-                            {
-                                chainId: "0x61",
-                            },
-                        ],
-                    });
-
-                    setAccount(await signer.getAddress());
-                } else {
-                    alert("Please install MetaMask.");
-                }
-            }
-            catch(e) {
-                console.error(e);
-            }
-        };
 
         connectWallet();
     }, []);
+
+    const connectWallet = async () => {
+        try {
+            if (window.ethereum) {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const signer = provider.getSigner();
+
+                const accounts = await window.ethereum.request(
+                    { method: 'eth_requestAccounts' }
+                );
+
+                await window.ethereum.request({
+                    method: "wallet_switchEthereumChain",
+                    params: [
+                        {
+                            chainId: "0x61",
+                        },
+                    ],
+                });
+
+                setAccount(await signer.getAddress());
+            } else {
+                alert("Please install MetaMask.");
+            }
+        }
+        catch (e) {
+            console.error(e);
+        }
+    };
+    
+    const requestSignMessage = async () => {
+        console.log(connected);
+        if (!connected) {
+            if (window.ethereum && account) {
+                try {
+                    const provider = new ethers.providers.Web3Provider(window.ethereum);
+                    const signer = provider.getSigner();
+                    const message = randomHex(1);
+                    const signature = await signer.signMessage(message);
+                    setConnected(true);
+                }
+                catch (e) {
+                    console.error(e);
+                }
+            }
+        }
+    };
 
     //BLOCKCHAIN WRITES
     const writeOperation = async (contractName, func, address = null) => {
         try {
             if (window.ethereum) {
+                if (!account) 
+                    await connectWallet(); 
+                    
                 const provider = new ethers.providers.Web3Provider(window.ethereum);
                 const signer = provider.getSigner();
                 console.log('signer:', await signer.getAddress());
@@ -53,7 +81,7 @@ const Wallet = forwardRef((props, ref) => {
                     return tx;
                 }
             } else {
-                throw new Error("No crypto wallet found");
+                console.error("No crypto wallet found");
             }
         }
         catch (e) {
@@ -124,6 +152,8 @@ const Wallet = forwardRef((props, ref) => {
     //READ-ONLY METHODS
     const getNftsOwned = async () => {
         if (window.ethereum) {
+            if (!account)
+                await connectWallet(); 
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             const signer = provider.getSigner();
             const contract = new ethers.Contract(addresses.productNftStore, abi.productNftStore, signer);
@@ -177,12 +207,14 @@ const Wallet = forwardRef((props, ref) => {
 
             return nfts;
         } else {
-            throw new Error("No crypto wallet found");
+            console.error("No crypto wallet found");
         }
     }; 
     
     const getNftsForSale = async () => {
         if (window.ethereum) {
+            if (!account)
+                await connectWallet(); 
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             const signer = provider.getSigner();
             const contract = new ethers.Contract(addresses.productNftStore, abi.productNftStore, signer);
@@ -238,11 +270,11 @@ const Wallet = forwardRef((props, ref) => {
 
             return nfts;
         } else {
-            throw new Error("No crypto wallet found");
+            console.error("No crypto wallet found");
         }
     }; 
     
-    const getAmountsOwed = async() => {
+    const getAmountsOwed = async () => {
         const nftsOwned = await getNftsOwned(); 
 
         if (window.ethereum) {
@@ -269,7 +301,7 @@ const Wallet = forwardRef((props, ref) => {
                 }
             }
         } else {
-            throw new Error("No crypto wallet found");
+            console.error("No crypto wallet found");
         }
 
         return nftsOwned;
@@ -283,7 +315,8 @@ const Wallet = forwardRef((props, ref) => {
         getNftsForSale, 
         getAmountsOwed, 
         postForSale, 
-        removeFromStore
+        removeFromStore, 
+        requestSignMessage
     }));
 
     return (
