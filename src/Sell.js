@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import logo from './logo.svg';
+import logo from './logo.png';
 import './App.css';
 import Wallet from "./components/Wallet";
 
@@ -76,7 +76,7 @@ function Sell() {
     return (
         <div className="App">
             <Wallet ref={walletRef} />
-            <img src={logo} className="App-logo" alt="logo" style={{ height: '100px' }} />
+            <img src={logo} alt="logo" style={{ height: '100px' }} />
             <h2>Mint a Product NFT</h2>
                 
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: 20 }}>

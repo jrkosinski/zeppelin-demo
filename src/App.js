@@ -7,7 +7,7 @@ import Collect from "./Collect";
 function App() {
     return (
         <Router>
-            <div className="App">
+            <div className="App" style={{"paddingTop":10}}>
                 <header>
                     <nav>
                         <Link to="/">home</Link> &nbsp;&#x2022; &nbsp;&nbsp;

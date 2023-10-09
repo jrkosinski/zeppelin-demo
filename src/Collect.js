@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import logo from './logo.svg';
+import logo from './logo.png';
 import './App.css';
 import Wallet from "./components/Wallet";
 
@@ -30,7 +30,7 @@ function Collect() {
     return (
         <div className="App">
             <Wallet ref={walletRef} />
-            <img src={logo} className="App-logo" alt="logo" style={{ height: '100px' }} />
+            <img src={logo} alt="logo" style={{ height: '100px' }} />
             <h2>NFTs Owned</h2>
 
             <div style={{ alignContent: 'left', alignSelf: 'left', textAlign: 'left', padding: 10 }}>
