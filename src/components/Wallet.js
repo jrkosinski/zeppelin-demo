@@ -90,14 +90,41 @@ const Wallet = forwardRef((props, ref) => {
         }
     }; 
     
-    const mintNft = async (productName, royaltyBps, price, quantity) => {
+    const createNft = async (productName, fieldNames, fieldValues) => {
         return await writeOperation("productNftIssuer", async (contract) => {
-            console.log("issueMintAndPost", productName, royaltyBps, price, quantity); 
-            return await contract.issueMintAndPost(
+            console.log("createNft", productName, fieldNames, fieldValues); 
+            return await contract.createNft(
                 productName, "CVR",
-                royaltyBps, price, quantity, [], []
+                fieldNames, fieldValues
             );
         }); 
+    };
+
+    const attachNftPolicy = async (nftAddress, nftPolicy) => {
+        return await writeOperation("productNftIssuer", async (contract) => {
+            console.log("attachNftPolicy", nftAddress, nftPolicy);
+            return await contract.attachNftPolicy(
+                nftAddress, nftPolicy
+            );
+        });
+    };
+
+    const mintNfts = async (nftAddress, quantity, fieldNames, fieldValues) => {
+        return await writeOperation("productNftIssuer", async (contract) => {
+            console.log("mintNfts", nftAddress, quantity, fieldNames, fieldValues);
+            return await contract.mintNfts(
+                nftAddress, quantity, fieldNames, fieldValues
+            );
+        });
+    };
+
+    const postToStore = async (nftAddress, price) => {
+        return await writeOperation("productNftIssuer", async (contract) => {
+            console.log("postToStore", nftAddress, price);
+            return await contract.postToStore(
+                nftAddress, price
+            );
+        });
     };
 
     const postForSale = async (nftAddress, tokenId) => {
@@ -310,7 +337,10 @@ const Wallet = forwardRef((props, ref) => {
     }; 
 
     useImperativeHandle(ref, () => ({
-        mintNft, 
+        createNft, 
+        attachNftPolicy,
+        mintNfts, 
+        postToStore,
         purchaseNft, 
         collectRoyalties, 
         getNftsOwned, 

@@ -16,9 +16,39 @@ function Sell() {
     useEffect(() => {
         getNfts();
     }, []);
-    
-    const mintNft = async (productName, royaltyBps, price, quantity) => {
-        const tx = await walletRef.current.mintNft(productName, royaltyBps, price, quantity);
+
+    const createNft = async (productName, fieldNames, fieldValues) => {
+        const tx = await walletRef.current.createNft(productName, fieldNames, fieldValues);
+
+        if (tx) {
+            const rc = await tx.wait();
+            console.log('Transaction hash:', rc.transactionHash);
+            await getNfts();
+        }
+    };
+
+    const attachNftPolicy = async (nftAddress, nftPolicy) => {
+        const tx = await walletRef.current.attachNftPolicy(nftAddress, nftPolicy);
+
+        if (tx) {
+            const rc = await tx.wait();
+            console.log('Transaction hash:', rc.transactionHash);
+            await getNfts();
+        }
+    };
+
+    const mintNfts = async (nftAddress, quantity, fieldNames, fieldValues) => {
+        const tx = await walletRef.current.mintNfts(nftAddress, quantity, fieldNames, fieldValues);
+
+        if (tx) {
+            const rc = await tx.wait();
+            console.log('Transaction hash:', rc.transactionHash);
+            await getNfts();
+        }
+    };
+
+    const postToStore = async (nftAddress, price) => {
+        const tx = await walletRef.current.postToStore(nftAddress, price);
 
         if (tx) {
             const rc = await tx.wait();
@@ -65,11 +95,8 @@ function Sell() {
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log("Form data submitted:", formData);
-        mintNft(
-            formData.productName, 
-            parseInt(formData.royaltyBps), 
-            parseInt(formData.price), 
-            parseInt(formData.quantity)
+        createNft(
+            formData.productName, [], []
         );
     };
 
