@@ -1,5 +1,5 @@
 module.exports = {
-    productNftFactory: [
+    productNftIssuer: [
         {
             "inputs": [
                 {
@@ -8,13 +8,18 @@ module.exports = {
                     "type": "address"
                 },
                 {
-                    "internalType": "contract IWhitelist",
-                    "name": "_sellerWhitelist",
+                    "internalType": "contract IProductNftFactory",
+                    "name": "_nftFactory",
                     "type": "address"
                 },
                 {
                     "internalType": "contract IProductNftStore",
                     "name": "_nftStore",
+                    "type": "address"
+                },
+                {
+                    "internalType": "contract INftPolicy",
+                    "name": "_refundPolicy",
                     "type": "address"
                 }
             ],
@@ -35,6 +40,16 @@ module.exports = {
                 }
             ],
             "name": "CallerNotNftOwner",
+            "type": "error"
+        },
+        {
+            "inputs": [],
+            "name": "InvalidAction",
+            "type": "error"
+        },
+        {
+            "inputs": [],
+            "name": "InvalidParams",
             "type": "error"
         },
         {
@@ -61,7 +76,7 @@ module.exports = {
                     "type": "address"
                 }
             ],
-            "name": "SellerNotWhitelisted",
+            "name": "SellerNotAuthorized",
             "type": "error"
         },
         {
@@ -105,6 +120,31 @@ module.exports = {
             "type": "event"
         },
         {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "creator",
+                    "type": "address"
+                },
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "nftAddress",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "NftMinted",
+            "type": "event"
+        },
+        {
             "inputs": [],
             "name": "ADMIN_ROLE",
             "outputs": [
@@ -119,7 +159,33 @@ module.exports = {
         },
         {
             "inputs": [],
-            "name": "MINTER_ROLE",
+            "name": "BURNER_ROLE",
+            "outputs": [
+                {
+                    "internalType": "bytes32",
+                    "name": "",
+                    "type": "bytes32"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "NFT_ISSUER_ROLE",
+            "outputs": [
+                {
+                    "internalType": "bytes32",
+                    "name": "",
+                    "type": "bytes32"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "NFT_SELLER_ROLE",
             "outputs": [
                 {
                     "internalType": "bytes32",
@@ -145,7 +211,20 @@ module.exports = {
         },
         {
             "inputs": [],
-            "name": "SALES_DATA_ROLE",
+            "name": "SYSTEM_ROLE",
+            "outputs": [
+                {
+                    "internalType": "bytes32",
+                    "name": "",
+                    "type": "bytes32"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "TOKEN_MINTER_ROLE",
             "outputs": [
                 {
                     "internalType": "bytes32",
@@ -185,42 +264,17 @@ module.exports = {
         {
             "inputs": [
                 {
-                    "internalType": "string",
-                    "name": "productName",
-                    "type": "string"
+                    "internalType": "address",
+                    "name": "nftAddress",
+                    "type": "address"
                 },
                 {
-                    "internalType": "string",
-                    "name": "symbol",
-                    "type": "string"
-                },
-                {
-                    "internalType": "uint16",
-                    "name": "royaltyBps",
-                    "type": "uint16"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "price",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "quantity",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "string[]",
-                    "name": "fieldNames",
-                    "type": "string[]"
-                },
-                {
-                    "internalType": "string[]",
-                    "name": "fieldValues",
-                    "type": "string[]"
+                    "internalType": "contract INftPolicy",
+                    "name": "nftPolicy",
+                    "type": "address"
                 }
             ],
-            "name": "issueMintAndPost",
+            "name": "attachNftPolicy",
             "outputs": [],
             "stateMutability": "nonpayable",
             "type": "function"
@@ -238,11 +292,6 @@ module.exports = {
                     "type": "string"
                 },
                 {
-                    "internalType": "uint16",
-                    "name": "royaltyBps",
-                    "type": "uint16"
-                },
-                {
                     "internalType": "string[]",
                     "name": "fieldNames",
                     "type": "string[]"
@@ -253,7 +302,7 @@ module.exports = {
                     "type": "string[]"
                 }
             ],
-            "name": "issueNft",
+            "name": "createNft",
             "outputs": [
                 {
                     "internalType": "address",
@@ -275,11 +324,40 @@ module.exports = {
                     "internalType": "uint256",
                     "name": "quantity",
                     "type": "uint256"
+                },
+                {
+                    "internalType": "string[]",
+                    "name": "fieldNames",
+                    "type": "string[]"
+                },
+                {
+                    "internalType": "string[]",
+                    "name": "fieldValues",
+                    "type": "string[]"
                 }
             ],
             "name": "mintNfts",
-            "outputs": [],
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
             "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "nftFactory",
+            "outputs": [
+                {
+                    "internalType": "contract IProductNftFactory",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
             "type": "function"
         },
         {
@@ -288,6 +366,37 @@ module.exports = {
             "outputs": [
                 {
                     "internalType": "contract IProductNftStore",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "nftAddress",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "price",
+                    "type": "uint256"
+                }
+            ],
+            "name": "postToStore",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "refundPolicy",
+            "outputs": [
+                {
+                    "internalType": "contract INftPolicy",
                     "name": "",
                     "type": "address"
                 }
@@ -327,7 +436,7 @@ module.exports = {
             "inputs": [
                 {
                     "internalType": "contract ISecurityManager",
-                    "name": "_securityManager",
+                    "name": "securityManager",
                     "type": "address"
                 },
                 {
@@ -344,19 +453,30 @@ module.exports = {
                     "internalType": "string",
                     "name": "symbol",
                     "type": "string"
-                },
-                {
-                    "internalType": "uint16",
-                    "name": "royaltyAmountBps",
-                    "type": "uint16"
                 }
             ],
             "stateMutability": "nonpayable",
             "type": "constructor"
         },
         {
+            "inputs": [
+                {
+                    "internalType": "string",
+                    "name": "",
+                    "type": "string"
+                }
+            ],
+            "name": "ArgumentException",
+            "type": "error"
+        },
+        {
             "inputs": [],
             "name": "FieldNotFound",
+            "type": "error"
+        },
+        {
+            "inputs": [],
+            "name": "MaxPoliciesExceeded",
             "type": "error"
         },
         {
@@ -475,7 +595,33 @@ module.exports = {
         },
         {
             "inputs": [],
-            "name": "MINTER_ROLE",
+            "name": "BURNER_ROLE",
+            "outputs": [
+                {
+                    "internalType": "bytes32",
+                    "name": "",
+                    "type": "bytes32"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "NFT_ISSUER_ROLE",
+            "outputs": [
+                {
+                    "internalType": "bytes32",
+                    "name": "",
+                    "type": "bytes32"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "NFT_SELLER_ROLE",
             "outputs": [
                 {
                     "internalType": "bytes32",
@@ -501,7 +647,20 @@ module.exports = {
         },
         {
             "inputs": [],
-            "name": "SALES_DATA_ROLE",
+            "name": "SYSTEM_ROLE",
+            "outputs": [
+                {
+                    "internalType": "bytes32",
+                    "name": "",
+                    "type": "bytes32"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "TOKEN_MINTER_ROLE",
             "outputs": [
                 {
                     "internalType": "bytes32",
@@ -539,19 +698,6 @@ module.exports = {
             "type": "function"
         },
         {
-            "inputs": [],
-            "name": "_royaltyBps",
-            "outputs": [
-                {
-                    "internalType": "uint16",
-                    "name": "",
-                    "type": "uint16"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
             "inputs": [
                 {
                     "internalType": "address",
@@ -565,6 +711,19 @@ module.exports = {
                 }
             ],
             "name": "approve",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "policy",
+                    "type": "address"
+                }
+            ],
+            "name": "attachPolicy",
             "outputs": [],
             "stateMutability": "nonpayable",
             "type": "function"
@@ -651,6 +810,19 @@ module.exports = {
             "type": "function"
         },
         {
+            "inputs": [],
+            "name": "getPolicies",
+            "outputs": [
+                {
+                    "internalType": "address[]",
+                    "name": "",
+                    "type": "address[]"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
             "inputs": [
                 {
                     "internalType": "address",
@@ -685,6 +857,11 @@ module.exports = {
                     "internalType": "uint32",
                     "name": "quantity",
                     "type": "uint32"
+                },
+                {
+                    "internalType": "string[]",
+                    "name": "affiliateIds",
+                    "type": "string[]"
                 }
             ],
             "name": "mint",
@@ -744,13 +921,19 @@ module.exports = {
             "type": "function"
         },
         {
-            "inputs": [],
-            "name": "productId",
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "name": "policies",
             "outputs": [
                 {
-                    "internalType": "bytes32",
+                    "internalType": "address",
                     "name": "",
-                    "type": "bytes32"
+                    "type": "address"
                 }
             ],
             "stateMutability": "view",
@@ -758,12 +941,12 @@ module.exports = {
         },
         {
             "inputs": [],
-            "name": "royaltyBps",
+            "name": "productId",
             "outputs": [
                 {
-                    "internalType": "uint16",
+                    "internalType": "bytes32",
                     "name": "",
-                    "type": "uint16"
+                    "type": "bytes32"
                 }
             ],
             "stateMutability": "view",
@@ -938,19 +1121,6 @@ module.exports = {
             "type": "function"
         },
         {
-            "inputs": [],
-            "name": "tokenQuantity",
-            "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
             "inputs": [
                 {
                     "internalType": "uint256",
@@ -964,6 +1134,19 @@ module.exports = {
                     "internalType": "string",
                     "name": "",
                     "type": "string"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "totalMinted",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
                 }
             ],
             "stateMutability": "view",
@@ -1000,11 +1183,6 @@ module.exports = {
                     "internalType": "contract ISecurityManager",
                     "name": "securityManager",
                     "type": "address"
-                },
-                {
-                    "internalType": "contract IWhitelist",
-                    "name": "_buyerWhitelist",
-                    "type": "address"
                 }
             ],
             "stateMutability": "nonpayable",
@@ -1014,11 +1192,32 @@ module.exports = {
             "inputs": [
                 {
                     "internalType": "address",
-                    "name": "",
+                    "name": "caller",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "nft",
                     "type": "address"
                 }
             ],
-            "name": "BuyerNotWhitelisted",
+            "name": "CallerNotNftOwner",
+            "type": "error"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "name": "InsufficientPayment",
             "type": "error"
         },
         {
@@ -1029,12 +1228,39 @@ module.exports = {
                     "type": "address"
                 },
                 {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "name": "NftInstanceUnavailable",
+            "type": "error"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "name": "NftNotOwned",
+            "type": "error"
+        },
+        {
+            "inputs": [
+                {
                     "internalType": "address",
                     "name": "",
                     "type": "address"
                 }
             ],
-            "name": "CallerNotNftOwner",
+            "name": "SellerNotAuthorized",
             "type": "error"
         },
         {
@@ -1060,6 +1286,61 @@ module.exports = {
         },
         {
             "inputs": [],
+            "name": "ZeroValueArgument",
+            "type": "error"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "nftAddress",
+                    "type": "address"
+                },
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "recipient",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "amount",
+                    "type": "uint256"
+                }
+            ],
+            "name": "NftPayout",
+            "type": "event"
+        },
+        {
+            "anonymous": false,
+            "inputs": [
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "nftAddress",
+                    "type": "address"
+                },
+                {
+                    "indexed": true,
+                    "internalType": "address",
+                    "name": "buyer",
+                    "type": "address"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "uint256",
+                    "name": "price",
+                    "type": "uint256"
+                }
+            ],
+            "name": "NftPurchased",
+            "type": "event"
+        },
+        {
+            "inputs": [],
             "name": "ADMIN_ROLE",
             "outputs": [
                 {
@@ -1073,7 +1354,33 @@ module.exports = {
         },
         {
             "inputs": [],
-            "name": "MINTER_ROLE",
+            "name": "BURNER_ROLE",
+            "outputs": [
+                {
+                    "internalType": "bytes32",
+                    "name": "",
+                    "type": "bytes32"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "NFT_ISSUER_ROLE",
+            "outputs": [
+                {
+                    "internalType": "bytes32",
+                    "name": "",
+                    "type": "bytes32"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "NFT_SELLER_ROLE",
             "outputs": [
                 {
                     "internalType": "bytes32",
@@ -1099,7 +1406,20 @@ module.exports = {
         },
         {
             "inputs": [],
-            "name": "SALES_DATA_ROLE",
+            "name": "SYSTEM_ROLE",
+            "outputs": [
+                {
+                    "internalType": "bytes32",
+                    "name": "",
+                    "type": "bytes32"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "TOKEN_MINTER_ROLE",
             "outputs": [
                 {
                     "internalType": "bytes32",
@@ -1137,13 +1457,19 @@ module.exports = {
             "type": "function"
         },
         {
-            "inputs": [],
-            "name": "buyerWhitelist",
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "nftAddress",
+                    "type": "address"
+                }
+            ],
+            "name": "getAmountOwedSeller",
             "outputs": [
                 {
-                    "internalType": "contract IWhitelist",
+                    "internalType": "uint256",
                     "name": "",
-                    "type": "address"
+                    "type": "uint256"
                 }
             ],
             "stateMutability": "view",
@@ -1184,6 +1510,25 @@ module.exports = {
         {
             "inputs": [
                 {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "name": "nftRevenue",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
                     "internalType": "uint256",
                     "name": "",
                     "type": "uint256"
@@ -1209,6 +1554,30 @@ module.exports = {
                 }
             ],
             "name": "nftsToPrices",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "name": "paymentRecord",
             "outputs": [
                 {
                     "internalType": "uint256",
@@ -1271,6 +1640,19 @@ module.exports = {
         {
             "inputs": [
                 {
+                    "internalType": "address",
+                    "name": "nftAddress",
+                    "type": "address"
+                }
+            ],
+            "name": "sellerWithdraw",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
                     "internalType": "contract ISecurityManager",
                     "name": "_securityManager",
                     "type": "address"
@@ -1291,7 +1673,7 @@ module.exports = {
                     "type": "address"
                 },
                 {
-                    "internalType": "contract ZeppelinOracle",
+                    "internalType": "contract IZeppelinOracle",
                     "name": "_zeppelin",
                     "type": "address"
                 }
@@ -1313,27 +1695,6 @@ module.exports = {
                 }
             ],
             "name": "NftNotOwned",
-            "type": "error"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "x",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "y",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "denominator",
-                    "type": "uint256"
-                }
-            ],
-            "name": "PRBMath__MulDivOverflow",
             "type": "error"
         },
         {
@@ -1372,7 +1733,33 @@ module.exports = {
         },
         {
             "inputs": [],
-            "name": "MINTER_ROLE",
+            "name": "BURNER_ROLE",
+            "outputs": [
+                {
+                    "internalType": "bytes32",
+                    "name": "",
+                    "type": "bytes32"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "NFT_ISSUER_ROLE",
+            "outputs": [
+                {
+                    "internalType": "bytes32",
+                    "name": "",
+                    "type": "bytes32"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "NFT_SELLER_ROLE",
             "outputs": [
                 {
                     "internalType": "bytes32",
@@ -1398,7 +1785,20 @@ module.exports = {
         },
         {
             "inputs": [],
-            "name": "SALES_DATA_ROLE",
+            "name": "SYSTEM_ROLE",
+            "outputs": [
+                {
+                    "internalType": "bytes32",
+                    "name": "",
+                    "type": "bytes32"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "TOKEN_MINTER_ROLE",
             "outputs": [
                 {
                     "internalType": "bytes32",
@@ -1448,7 +1848,25 @@ module.exports = {
                     "type": "uint256"
                 }
             ],
-            "name": "amountOwed",
+            "name": "buyerWithdraw",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "nftAddress",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256"
+                }
+            ],
+            "name": "getAmountOwed",
             "outputs": [
                 {
                     "internalType": "uint256",
@@ -1484,24 +1902,6 @@ module.exports = {
             "type": "function"
         },
         {
-            "inputs": [
-                {
-                    "internalType": "address",
-                    "name": "nftAddress",
-                    "type": "address"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "tokenId",
-                    "type": "uint256"
-                }
-            ],
-            "name": "pullPayment",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
             "inputs": [],
             "name": "securityManager",
             "outputs": [
@@ -1532,13 +1932,17 @@ module.exports = {
             "name": "zeppelin",
             "outputs": [
                 {
-                    "internalType": "contract ZeppelinOracle",
+                    "internalType": "contract IZeppelinOracle",
                     "name": "",
                     "type": "address"
                 }
             ],
             "stateMutability": "view",
             "type": "function"
+        },
+        {
+            "stateMutability": "payable",
+            "type": "receive"
         }
     ]
 }

@@ -27,7 +27,7 @@ const Wallet = forwardRef((props, ref) => {
                     method: "wallet_switchEthereumChain",
                     params: [
                         {
-                            chainId: "0x61",
+                            chainId: "0xaa36a7",
                         },
                     ],
                 });
@@ -91,7 +91,7 @@ const Wallet = forwardRef((props, ref) => {
     }; 
     
     const mintNft = async (productName, royaltyBps, price, quantity) => {
-        return await writeOperation("productNftFactory", async (contract) => {
+        return await writeOperation("productNftIssuer", async (contract) => {
             console.log("issueMintAndPost", productName, royaltyBps, price, quantity); 
             return await contract.issueMintAndPost(
                 productName, "CVR",
@@ -142,9 +142,9 @@ const Wallet = forwardRef((props, ref) => {
         console.log('owner of nft:', await nft.owner()); 
         
         return await writeOperation("affiliatePayout", async (contract) => {
-            console.log("pullPayment", nftAddress, tokenId);
+            console.log("buyerWithdraw", nftAddress, tokenId);
 
-            return await contract.pullPayment(
+            return await contract.buyerWithdraw(
                 nftAddress, tokenId
             );
         });
@@ -172,7 +172,7 @@ const Wallet = forwardRef((props, ref) => {
                     nft.name(), 
                     nft.royaltyBps(),
                     nft.isApprovedForAll(await nft.owner(), addresses.productNftStore), 
-                    nft.tokenQuantity()
+                    nft.totalMinted()
                 ]);
                 
                 const item = {
@@ -231,7 +231,7 @@ const Wallet = forwardRef((props, ref) => {
                 const nftInfo = await Promise.all([
                     nft.owner(),
                     contract.getPrice(nftAddr), 
-                    nft.tokenQuantity(), 
+                    nft.totalMinted(), 
                     nft.name(),
                     nft.isApprovedForAll(await nft.owner(), addresses.productNftStore),
                     nft.royaltyBps()
@@ -289,7 +289,7 @@ const Wallet = forwardRef((props, ref) => {
             for (let n = 0; n < nftsOwned.length; n++) {
                 for (let i = 0; i < nftsOwned[n].instances.length; i++) {
                     const token = nftsOwned[n].instances[i];
-                    owedPromises.push(contract.amountOwed(nftsOwned[n].address, token.tokenId));
+                    owedPromises.push(contract.getAmountOwed(nftsOwned[n].address, token.tokenId));
                 }
             }
             
