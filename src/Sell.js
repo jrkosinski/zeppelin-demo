@@ -1,11 +1,27 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, createRef } from 'react';
 import logo from './logo.png';
 import './App.css';
 import Wallet from "./components/Wallet";
+import AttachPolicies from './components/AttachPolicies';
+import CreateNft from './components/CreateNft';
+import MintNfts from './components/MintNfts';
+import PostForSale from './components/PostForSale';
+import { clear } from '@testing-library/user-event/dist/clear';
+
+//0x9C570f23490b1A2df85AEFc9B1280f52aFbf487d
 
 function Sell() {
     const walletRef = useRef(null);
+    const createFormRef = useRef(null);
+    const policyFormRef = useRef(null);
+    const mintFormRef = useRef(null);
+    const postFormRef = useRef(null);
+    
     const [nfts, setNfts] = useState(null);
+    const [nftAddress, setNftAddress] = useState(null);
+    const [minted, setMinted] = useState(false);
+    const [posted, setPosted] = useState(false);
+    const [policiesAttached, setPoliciesAttached] = useState(false);
 
     const getNfts = async () => {
         const nfts = await walletRef.current.getAmountsOwed();
@@ -17,47 +33,30 @@ function Sell() {
         getNfts();
     }, []);
 
-    const createNft = async (productName, fieldNames, fieldValues) => {
-        const tx = await walletRef.current.createNft(productName, fieldNames, fieldValues);
+    const onNftCreated = (nftAddr) => {
+        setNftAddress(nftAddr);
+        getNfts();
+    }
 
-        if (tx) {
-            const rc = await tx.wait();
-            console.log('Transaction hash:', rc.transactionHash);
-            await getNfts();
-        }
-    };
+    const onPoliciesAttached = (done) => {
+        setPoliciesAttached(done);
+        getNfts();
+    }
+    
+    const onNftsMinted = () => {
+        setMinted(true);
+        getNfts();
+    }
+    
+    const onPosted = () => {
+        setPosted(false);
+        setMinted(false);
+        setPoliciesAttached(false);
+        clear();
+        getNfts();
+    }
 
-    const attachNftPolicy = async (nftAddress, nftPolicy) => {
-        const tx = await walletRef.current.attachNftPolicy(nftAddress, nftPolicy);
-
-        if (tx) {
-            const rc = await tx.wait();
-            console.log('Transaction hash:', rc.transactionHash);
-            await getNfts();
-        }
-    };
-
-    const mintNfts = async (nftAddress, quantity, fieldNames, fieldValues) => {
-        const tx = await walletRef.current.mintNfts(nftAddress, quantity, fieldNames, fieldValues);
-
-        if (tx) {
-            const rc = await tx.wait();
-            console.log('Transaction hash:', rc.transactionHash);
-            await getNfts();
-        }
-    };
-
-    const postToStore = async (nftAddress, price) => {
-        const tx = await walletRef.current.postToStore(nftAddress, price);
-
-        if (tx) {
-            const rc = await tx.wait();
-            console.log('Transaction hash:', rc.transactionHash);
-            await getNfts();
-        }
-    };
-
-    const postForSale = async (nftAddress) => {
+    const postForSale = async () => {
         const tx = await walletRef.current.postForSale(nftAddress);
 
         if (tx) {
@@ -66,8 +65,8 @@ function Sell() {
             await getNfts();
         }
     };
-
-    const removeFromStore = async (nftAddress) => {
+    
+    const removeFromSale = async (nftAddress) => {
         const tx = await walletRef.current.removeFromStore(nftAddress);
 
         if (tx) {
@@ -77,87 +76,28 @@ function Sell() {
         }
     };
 
-    const [formData, setFormData] = useState({
-        productName: "",
-        royaltyBps: 0,
-        price: 0,
-        quantity: 0,
-    });
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prevState => ({
-            ...prevState,
-            [name]: value
-        }));
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log("Form data submitted:", formData);
-        createNft(
-            formData.productName, [], []
-        );
-    };
-
     return (
         <div className="App">
             <Wallet ref={walletRef} />
             <img src={logo} alt="logo" style={{ height: '100px' }} />
-            <h2>Mint a Product NFT</h2>
-                
+            <h2>Create a Product NFT</h2>
+
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: 20 }}>
-                <form onSubmit={handleSubmit}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignContent: 'left', alignSelf: 'left', textAlign: 'left', }}>
-                        <label>
-                            product name  &nbsp;
-                            <input
-                                type="text"
-                                name="productName"
-                                value={formData.productName}
-                                onChange={handleChange}
-                            />
-                        </label>
-                        <br />
-                        <br />
-                        <label>
-                            royalty (BPS)  &nbsp;
-                            <input
-                                type="text"
-                                name="royaltyBps"
-                                value={formData.royaltyBps}
-                                onChange={handleChange}
-                            />
-                        </label>
-                        <br />
-                        <br />
-                        <label>
-                            price (wei)  &nbsp;
-                            <input 
-                                type="text"
-                                name="price"
-                                value={formData.price}
-                                onChange={handleChange}
-                            />
-                        </label>
-                        <br />
-                        <br />
-                        <label>
-                            quantity (integer)  &nbsp;
-                            <input
-                                type="text"
-                                name="quantity"
-                                value={formData.quantity}
-                                onChange={handleChange}
-                            />
-                        </label>
-                        <br />
-                    </div>
-                    <br /><br />
-                    <div>
-                        <button type="submit">Submit</button>
-                    </div>
-                </form>
+                {!nftAddress &&
+                    <CreateNft onNftCreated={onNftCreated} ref={createFormRef}></CreateNft>
+                }
+
+                {nftAddress && !policiesAttached &&
+                    <AttachPolicies nftAddress={nftAddress} onPoliciesAttached={onPoliciesAttached} ref={policyFormRef} ></AttachPolicies>
+                }
+
+                {nftAddress && policiesAttached && !minted &&
+                    <MintNfts nftAddress={nftAddress} onNftsMinted={onNftsMinted} ref={mintFormRef}></MintNfts>
+                }
+
+                {nftAddress && policiesAttached && minted && 
+                    <PostForSale nftAddress={nftAddress} onPosted={onPosted} ref={postFormRef}></PostForSale>
+                }
             </div>
             <h2>My NFTs</h2>
 
@@ -168,7 +108,7 @@ function Sell() {
                         <li key={index} style={{ padding: "8px 0", borderBottom: "1px solid #ddd" }}>
                             <b>{nft.name}</b><br />{nft.address} <b>({nft.numberOwned.toString()} owned by you)</b>&nbsp;&nbsp;
                             {nft.numberOwned > 0 && !nft.isForSale && <button onClick={() => postForSale(nft.address)}>sell in store</button>}
-                            {nft.numberOwned > 0 && nft.isForSale && <button onClick={() => removeFromStore(nft.address)}>remove from store</button>}
+                            {nft.numberOwned > 0 && nft.isForSale && <button onClick={() => removeFromSale(nft.address)}>remove from store</button>}
                             <br /><br />
                         </li>
                     ))}
