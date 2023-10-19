@@ -45,6 +45,7 @@ const PostForSale = forwardRef((props, ref) => {
             await postForSale();
         }
 
+        //TODO: action after posting is errorful
         onPosted();
     };
 
@@ -80,7 +81,7 @@ const PostForSale = forwardRef((props, ref) => {
                 </div>
                 <br /><br />
                 <div>
-                    <button type="submit">mint</button>
+                    <button type="submit">post</button>
                 </div>
             </form>
         </div>

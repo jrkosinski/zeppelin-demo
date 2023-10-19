@@ -1,8 +1,11 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { ethers } from "ethers";
 import abi from "../contracts/abi";
-import addresses from "../contracts/addresses";
+import contractAddresses from "../contracts/addresses";
 import { randomHex } from 'web3-utils';
+
+//TODO: change to get from wallet login
+const addresses = contractAddresses["sepolia"];
 
 const Wallet = forwardRef((props, ref) => {
     const [account, setAccount] = useState(null);
@@ -189,7 +192,7 @@ const Wallet = forwardRef((props, ref) => {
             const userAddress = await signer.getAddress();
             const nftAddresses = await contract.getNftsForSale();
             const nfts = [];
-
+            
             for (let n = 0; n < nftAddresses.length; n++) {
                 const nftAddr = nftAddresses[n];
                 const nft = new ethers.Contract(nftAddr, abi.productNft, signer);
@@ -197,9 +200,9 @@ const Wallet = forwardRef((props, ref) => {
                 const nftInfo = await Promise.all([
                     nft.balanceOf(userAddress),
                     nft.name(), 
-                    nft.royaltyBps(),
                     nft.isApprovedForAll(await nft.owner(), addresses.productNftStore), 
-                    nft.totalMinted()
+                    nft.totalMinted(),
+                    nft.getPolicies()
                 ]);
                 
                 const item = {
@@ -207,9 +210,10 @@ const Wallet = forwardRef((props, ref) => {
                     numberOwned: nftInfo[0], 
                     name: nftInfo[1],
                     productId: nftInfo[1],
-                    royalty: nftInfo[2],
-                    isForSale: nftInfo[3],
-                    totalQuantity: nftInfo[4],
+                    royalty: 0,
+                    isForSale: nftInfo[2],
+                    totalQuantity: nftInfo[3],
+                    policies: nftInfo[4],
                     instances: []
                 }; 
                 
@@ -261,7 +265,7 @@ const Wallet = forwardRef((props, ref) => {
                     nft.totalMinted(), 
                     nft.name(),
                     nft.isApprovedForAll(await nft.owner(), addresses.productNftStore),
-                    nft.royaltyBps()
+                    nft.getPolicies()
                 ]); 
                 const nftOwner = nftInfo[0];
                 
@@ -272,7 +276,8 @@ const Wallet = forwardRef((props, ref) => {
                     name: nftInfo[3],
                     productId: nftInfo[3],
                     isForSale: nftInfo[4],
-                    royalty: nftInfo[5]
+                    royalty: 0, 
+                    policies: nftInfo[5]
                 }; 
                 const count = nftInfo[2]; 
                 

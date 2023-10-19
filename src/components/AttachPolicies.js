@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import '../App.css';
+import addresses from '../contracts/addresses';
 import Wallet from "./Wallet";
 
 const AttachPolicies = forwardRef((props, ref) => {
@@ -27,8 +28,15 @@ const AttachPolicies = forwardRef((props, ref) => {
     
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Form data submitted:", formData);
         
+        console.log(policiesToAdd);
+        
+        //TODO: attach multiple policies at once 
+        policiesToAdd.forEach((p) => {
+            attachNftPolicy(nftAddress, p.address);
+        }); 
+        
+        //TODO: don't move on until all txes are done 
         onPoliciesAttached(true);
     };
     
@@ -41,22 +49,25 @@ const AttachPolicies = forwardRef((props, ref) => {
             {
                 id: 1,
                 type: "AffiliateReward", 
-                percentageBps: 100
+                percentageBps: 100,
+                address: addresses["sepolia"].affiliatePolicy
             }, 
             {
                 id: 2,
                 type: "FinancingReward", 
                 percentageBps: 20, 
-                inventoryLimit: 0, 
+                inventoryLimit: 0,
                 shared: false, 
-                fillOrKill: false
+                fillOrKill: false,
+                address: addresses["sepolia"].financingPolicy
             },
             {
                 id: 3,
                 type: "FinancingReward",
                 percentageBps: 140,
                 inventoryLimit: 100,
-                shared: false
+                shared: false,
+                address: addresses["sepolia"].financingPolicy
             },
             {
                 id: 4,
@@ -64,7 +75,8 @@ const AttachPolicies = forwardRef((props, ref) => {
                 percentageBps: 250,
                 inventoryLimit: 100,
                 shared: false,
-                fillOrKill: true
+                fillOrKill: true,
+                address: addresses["sepolia"].financingPolicy
             }
         ]);
     }

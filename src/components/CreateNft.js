@@ -16,7 +16,7 @@ const CreateNft = forwardRef((props, ref) => {
     const createNft = async (productName, brandName, url) => {
         const fieldNames = ["brand", "url"];
         const fieldValues = [brandName, url];
-        const tx = await walletRef.current.createNft(productName, fieldNames, fieldValues);
+        const tx = await walletRef.current.createNft(productName, [], []);
         let newNftAddress = null;
 
         if (tx) {
@@ -48,7 +48,7 @@ const CreateNft = forwardRef((props, ref) => {
         //const newNftAddress = await createNft(
         //    formData.productName, formData.brandName, formData.productUrl
         //);
-        const newNftAddress = "0x9C570f23490b1A2df85AEFc9B1280f52aFbf487d";
+        const newNftAddress = "0xAEE518DB1ECa9CA33d69e1a40910e2C576b6c728";
         console.log("new NFT:", newNftAddress);
         
         setNftAddress(newNftAddress);

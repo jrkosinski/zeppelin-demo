@@ -24,8 +24,8 @@ function Sell() {
     const [policiesAttached, setPoliciesAttached] = useState(false);
 
     const getNfts = async () => {
-        const nfts = await walletRef.current.getAmountsOwed();
-        //console.log(nfts);
+        const nfts = await walletRef.current.getNftsOwned();
+        console.log(nfts);
         setNfts(nfts);
     };
 
