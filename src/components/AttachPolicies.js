@@ -17,8 +17,8 @@ const AttachPolicies = forwardRef((props, ref) => {
     const { onPoliciesAttached } = props;
     const { nftAddress } = props; 
 
-    const attachNftPolicy = async (nftAddress, nftPolicy) => {
-        const tx = await walletRef.current.attachNftPolicy(nftAddress, nftPolicy);
+    const attachNftPolicies = async (nftAddress, policies) => {
+        const tx = await walletRef.current.attachNftPolicies(nftAddress, policies);
 
         if (tx) {
             const rc = await tx.wait();
@@ -29,12 +29,9 @@ const AttachPolicies = forwardRef((props, ref) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        console.log(policiesToAdd);
+        console.log(policiesToAdd.map(p => p.address));
         
-        //TODO: attach multiple policies at once 
-        policiesToAdd.forEach((p) => {
-            attachNftPolicy(nftAddress, p.address);
-        }); 
+        await attachNftPolicies(nftAddress, policiesToAdd.map(p => p.address));
         
         //TODO: don't move on until all txes are done 
         onPoliciesAttached(true);

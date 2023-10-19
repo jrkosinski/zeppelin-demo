@@ -27,7 +27,7 @@ const PostForSale = forwardRef((props, ref) => {
 
         if (tx) {
             const rc = await tx.wait();
-            console.log('Transaction hash:', rc.transactionHash);
+            //console.log('Transaction hash:', rc.transactionHash);
             return true;
         }
     };

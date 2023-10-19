@@ -1,18 +1,20 @@
 module.exports = {
     sepolia: {
-        productNftStore: '0x0fb498B11137E85489BC2cD1F0C0932C84f40533',
-        productNftIssuer: '0x98921937b7E5dbD9b6238351da77B1402fF59BC7',
-        zeppelin: '0x69ABf5acC2fA2d92f83Dfe2d81315fe6ec5C68cA',
-        affiliatePayout: '0xA9096eB98B65edcA6Cb28E5F253E71095C6B15e6',
-        refundPolicy: '0x05d896073b97dAB89d8E382909A7Fd471034Fc27',
-        financingPolicy: '0x4c97d6893e7A1cF8C74EaF812893f82aDf7140F1',
-        affiliatePolicy: '0x84154090d124C52d454A2C38a526d6a2BF4d2BaB',
-        policyFactory: '0xAba46b1F698e2a6132803D83DF236E545bdbfdAb'
+        securityManager: "0xe07675f0eF8de2B4f32b14FBfB602Ab2C04f091E",
+        productNftFactory: "0x2074eCEE521D2f4307e7Df42a4591fCC2150d02D",
+        productNftStore: '0x944F6F60305Ff9CfDe52A6885560e744F7eEEE51',
+        productNftIssuer: '0xB7E3E398772C70EAAe1294A468F934BEc47577aA',
+        zeppelinOracle: '0x039616d3cf0E10CD95e91d2852F7bA811c08730e',
+        affiliatePayout: '0x2026d3850515e636E0Eb6C818d892198Fb96bbDF',
+        refundPolicy: '0x7823261F4b05D60dF48a2341Eec24a41c2c50866',
+        affiliatePolicy: '0x6CB849f67A091f44A851f5c7DB37899099712473',
+        financingPolicy: '0xd23135585a229c5809FEA64F414e24C25bDBB428',
+        policyFactory: '0xBC67c5D89906eE0E0C4A9F4926Ca26690bD4F804'
     }, 
     matic_mumbai: {
         productNftStore: '0xADF789E61Bf38c463e4bA5B2B6E9C1Af6659e11b',
         productNftIssuer: '0x729895AaC3b1a776DcAd98c4d666e665d71a6E9F',
-        zeppelin: '0x4B36e6130b4931DCc5A64c4bca366790aAA068d1',
+        zeppelinOracle: '0x4B36e6130b4931DCc5A64c4bca366790aAA068d1',
         affiliatePayout: '0x45B24160Da2cA92673B6CAf4dFD11f60aDac73E3',
         refundPolicy: '0xa5fd28B5E691685EBcfa6006b2e8c1b09B27ddC1',
         financingPolicy: '0xE145471C075b5E57e85BcD909E9004fDD59557f5',
@@ -22,7 +24,7 @@ module.exports = {
     scroll_sepolia: {
         productNftStore: '0xd7e19b955321dcaE4070cF9240c2aD33C7439457',
         productNftIssuer: '0xADF789E61Bf38c463e4bA5B2B6E9C1Af6659e11b',
-        zeppelin: '0x412d0493c7fF6FFba527f2A8bcc21Fa419ea809C',
+        zeppelinOracle: '0x412d0493c7fF6FFba527f2A8bcc21Fa419ea809C',
         affiliatePayout: '0xE145471C075b5E57e85BcD909E9004fDD59557f5',
         refundPolicy: '0xeAf00Aa7810bd658648E44eB059eaF15620E14e3',
         financingPolicy: '0x3e6cecF46Ec03c570588454A634fdED70eD9b862',
@@ -32,7 +34,7 @@ module.exports = {
     zkevm_testnet: {
         productNftStore: '0xa5fd28B5E691685EBcfa6006b2e8c1b09B27ddC1',
         productNftIssuer: '0xE145471C075b5E57e85BcD909E9004fDD59557f5',
-        zeppelin: '0x5cB603DB37d80e162a355f8085ED1885769ec211',
+        zeppelinOracle: '0x5cB603DB37d80e162a355f8085ED1885769ec211',
         affiliatePayout: '0xb799Df50f2d81cAEd17b130357c3796012D4cFAC',
         refundPolicy: '0x58d3E4e41dbc7Dde9783595B0D690dc53EDAc1A7',
         financingPolicy: '0x5a005981378ADfC1F1D984c7B623E5eBB7E1D334',

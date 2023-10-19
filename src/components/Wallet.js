@@ -95,7 +95,9 @@ const Wallet = forwardRef((props, ref) => {
     
     const createNft = async (productName, fieldNames, fieldValues) => {
         return await writeOperation("productNftIssuer", async (contract) => {
-            console.log("createNft", productName, fieldNames, fieldValues); 
+            console.log("createNft", productName, [], []); 
+            
+            //TODO: setFields not working
             return await contract.createNft(
                 productName, "CVR",
                 fieldNames, fieldValues
@@ -103,11 +105,11 @@ const Wallet = forwardRef((props, ref) => {
         }); 
     };
 
-    const attachNftPolicy = async (nftAddress, nftPolicy) => {
+    const attachNftPolicies = async (nftAddress, policies) => {
         return await writeOperation("productNftIssuer", async (contract) => {
-            console.log("attachNftPolicy", nftAddress, nftPolicy);
-            return await contract.attachNftPolicy(
-                nftAddress, nftPolicy
+            console.log("attachNftPolicies", nftAddress, policies);
+            return await contract.attachNftPolicies(
+                nftAddress, policies
             );
         });
     };
@@ -343,7 +345,7 @@ const Wallet = forwardRef((props, ref) => {
 
     useImperativeHandle(ref, () => ({
         createNft, 
-        attachNftPolicy,
+        attachNftPolicies,
         mintNfts, 
         postToStore,
         purchaseNft, 

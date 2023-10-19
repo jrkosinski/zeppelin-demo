@@ -8,8 +8,6 @@ import MintNfts from './components/MintNfts';
 import PostForSale from './components/PostForSale';
 import { clear } from '@testing-library/user-event/dist/clear';
 
-//0x9C570f23490b1A2df85AEFc9B1280f52aFbf487d
-
 function Sell() {
     const walletRef = useRef(null);
     const createFormRef = useRef(null);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import '../App.css';
 import Wallet from "./Wallet";
+import { ethers } from "ethers";
 
 const MintNfts = forwardRef((props, ref) => {
     const walletRef = useRef(null);
@@ -27,9 +28,15 @@ const MintNfts = forwardRef((props, ref) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log("Form data submitted:", formData);
-        //await mintNfts(
-        //    parseInt(formData.mintQuantity), [], []
-        //);
+
+        const affiliateIds  = [];
+        for (let n = 0; n < formData.mintQuantity; n++) {
+            affiliateIds.push(ethers.utils.keccak256(ethers.utils.toUtf8Bytes(nftAddress + (n+1).toString())).substring(0, 20));
+        }
+        
+        await mintNfts(
+            parseInt(formData.mintQuantity), ["affiliateId"], affiliateIds
+        );
         
         onNftsMinted();
     };
